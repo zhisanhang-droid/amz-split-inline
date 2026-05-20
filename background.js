@@ -63,81 +63,59 @@ function injectSplitLayout() {
   if (document.getElementById('amz-split-host')) return;
 
   const MOBILE_WIDTH = 393;
-  const url = window.location.href;
+  const LABEL_H = 28;
 
-  // Wrapper that fills the viewport
-  const host = document.createElement('div');
-  host.id = 'amz-split-host';
-  host.style.cssText = [
-    'position:fixed', 'inset:0', 'z-index:2147483647',
-    'display:flex', 'background:#f0f0f0', 'gap:3px'
+  // Push page content left to make room for the mobile panel
+  document.documentElement.style.cssText +=
+    `;margin-right:${MOBILE_WIDTH}px !important;box-sizing:border-box;`;
+
+  // Fixed right panel — only this is an iframe (sub_frame), so only this gets mobile UA
+  const panel = document.createElement('div');
+  panel.id = 'amz-split-host';
+  panel.style.cssText = [
+    'position:fixed', 'top:0', 'right:0', 'bottom:0',
+    `width:${MOBILE_WIDTH}px`, 'z-index:2147483647',
+    'display:flex', 'flex-direction:column',
+    'border-left:3px solid #FF9900', 'background:#fff', 'box-shadow:-4px 0 12px rgba(0,0,0,.15)'
   ].join(';');
-
-  // Left pane: desktop iframe
-  const left = document.createElement('iframe');
-  left.id = 'amz-split-desktop';
-  left.src = url;
-  left.style.cssText = 'flex:1; height:100%; border:none; background:#fff;';
 
   // Label bar
-  function label(text, bg) {
-    const bar = document.createElement('div');
-    bar.textContent = text;
-    bar.style.cssText = [
-      `background:${bg}`, 'color:#111', 'font:700 11px/28px sans-serif',
-      'text-align:center', 'letter-spacing:.5px', 'flex-shrink:0'
-    ].join(';');
-    return bar;
-  }
-
-  // Right pane wrapper
-  const rightWrap = document.createElement('div');
-  rightWrap.style.cssText = [
-    `width:${MOBILE_WIDTH}px`, 'flex-shrink:0', 'display:flex',
-    'flex-direction:column', 'height:100%'
+  const label = document.createElement('div');
+  label.style.cssText = [
+    'background:#FF9900', 'color:#111',
+    `font:700 11px/${LABEL_H}px sans-serif`,
+    'text-align:center', 'flex-shrink:0',
+    'position:relative', 'letter-spacing:.4px'
   ].join(';');
+  label.textContent = '📱  MOBILE · Amazon App UA';
 
-  const rightLabel = label('📱  MOBILE · Amazon App UA', '#FF9900');
-  rightLabel.style.flexShrink = '0';
-
-  const right = document.createElement('iframe');
-  right.id = 'amz-split-mobile';
-  right.src = url;
-  right.style.cssText = 'flex:1; border:none; background:#fff; width:100%;';
-
-  rightWrap.appendChild(rightLabel);
-  rightWrap.appendChild(right);
-
-  // Left label bar on top of left pane
-  const leftWrap = document.createElement('div');
-  leftWrap.style.cssText = 'flex:1; display:flex; flex-direction:column; height:100%; min-width:0;';
-  const leftLabel = label('🖥  DESKTOP', '#e0e0e0');
-  leftLabel.style.flexShrink = '0';
-  leftWrap.appendChild(leftLabel);
-  leftWrap.appendChild(left);
-
-  // Close button
+  // Close button inside label
   const close = document.createElement('button');
-  close.textContent = '✕ Exit Split';
+  close.textContent = '✕';
   close.style.cssText = [
-    'position:absolute', 'top:4px', 'right:400px',
-    'z-index:1', 'padding:3px 10px', 'border:none',
-    'border-radius:4px', 'cursor:pointer', 'font:600 11px sans-serif',
-    'background:#333', 'color:#fff', 'opacity:.85'
+    'position:absolute', 'right:8px', 'top:50%', 'transform:translateY(-50%)',
+    'border:none', 'background:rgba(0,0,0,.18)', 'color:#111',
+    'border-radius:3px', 'padding:1px 7px', 'cursor:pointer',
+    'font:700 11px sans-serif', 'line-height:18px'
   ].join(';');
   close.onclick = () => chrome.runtime.sendMessage({ action: 'restore' });
+  label.appendChild(close);
 
-  host.appendChild(leftWrap);
-  host.appendChild(rightWrap);
-  host.appendChild(close);
-  document.body.appendChild(host);
-  document.body.style.overflow = 'hidden';
+  // Mobile iframe — this is the only sub_frame, so only this gets mobile UA
+  const iframe = document.createElement('iframe');
+  iframe.id = 'amz-split-mobile';
+  iframe.src = window.location.href;
+  iframe.style.cssText = 'flex:1; border:none; width:100%;';
+
+  panel.appendChild(label);
+  panel.appendChild(iframe);
+  document.body.appendChild(panel);
 }
 
 function removeSplitLayout() {
-  const host = document.getElementById('amz-split-host');
-  if (host) host.remove();
-  document.body.style.overflow = '';
+  const panel = document.getElementById('amz-split-host');
+  if (panel) panel.remove();
+  document.documentElement.style.marginRight = '';
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
