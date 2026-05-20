@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 260px;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #111;
+    }
+    .header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+    .icon { font-size: 24px; }
+    .title { font-size: 14px; font-weight: 700; }
+    .subtitle { font-size: 11px; color: #888; margin-top: 2px; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 600; padding: 3px 9px;
+      border-radius: 20px; margin-bottom: 12px;
+    }
+    .badge.active { background: #e8f5e9; color: #2e7d32; }
+    .badge.inactive { background: #f5f5f5; color: #999; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .note {
+      font-size: 11px; color: #666; background: #fff8e7;
+      border-left: 3px solid #FF9900; padding: 7px 9px;
+      border-radius: 0 6px 6px 0; margin-bottom: 12px; line-height: 1.5;
+    }
+
+    button {
+      width: 100%; padding: 10px; border: none; border-radius: 8px;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: opacity .15s;
+    }
+    button:hover:not(:disabled) { opacity: .88; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    #splitBtn { background: #FF9900; color: #111; }
+    #restoreBtn { background: #1a1a1a; color: #fff; display: none; }
+
+    .status {
+      text-align: center; font-size: 11px; color: #999;
+      margin-top: 8px; min-height: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="icon">📱</div>
+    <div>
+      <div class="title">Split View · Inline</div>
+      <div class="subtitle">Same window · Desktop + Mobile</div>
+    </div>
+  </div>
+
+  <div class="badge inactive" id="badge">
+    <span class="dot"></span>
+    <span id="badgeText">Ready</span>
+  </div>
+
+  <div class="note">
+    Injects an iframe — Amazon App UA on the right pane.<br>
+    Both panes scroll independently.
+  </div>
+
+  <button id="splitBtn">Open Inline Split →</button>
+  <button id="restoreBtn">Exit Split View</button>
+  <div class="status" id="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
